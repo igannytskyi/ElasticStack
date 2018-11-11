@@ -1,1 +1,1 @@
-# ElastikStack
+# ElasticStack

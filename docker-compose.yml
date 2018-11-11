@@ -1,0 +1,94 @@
+version: '3.7'
+services:
+
+  filebeat:
+    container_name: filebeat
+    image: filebeat:latest
+    build:
+          context: .
+          dockerfile: filebeat/Dockerfile
+    depends_on:
+      - elasticsearch
+      - logstash
+    volumes:
+      - ./logs:/var/logs
+    links:
+      - logstash
+    networks:
+      - esnet
+
+  logstash:
+    container_name: logstash
+    image: logstash:latest
+    build:
+          context: .
+          dockerfile: logstash/Dockerfile
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 5044:5044
+      - 9600:9600
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    expose:
+      - 5044
+      - 9600
+    networks:
+      - esnet
+
+  elasticsearch:
+    image: elasticsearch:latest
+    container_name: elasticsearch
+    build:
+          context: .
+          dockerfile: elasticsearch/Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    expose:
+      - 9200
+      - 9300
+    networks:
+      - esnet
+
+  elasticsearch2:
+    image: elasticsearch2:latest
+    container_name: elasticsearch2
+    build:
+          context: .
+          dockerfile: elasticsearch/Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+
+volumes:
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+
+networks:
+  esnet:
+    external: true

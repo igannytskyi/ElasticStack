@@ -1,4 +1,6 @@
-#ElasticStack
+# ElasticStack#
+
+[![Build Status](https://travis-ci.org/igannytskyi/ElasticStack.svg?branch=master)](https://travis-ci.org/igannytskyi/ElasticStack)
 
 Docker config for deployment:
 - filebeat
@@ -7,4 +9,6 @@ Docker config for deployment:
 - kibana
 
 For deployment and run:
-execute stat.sh
+```sh
+$ ./start.sh
+```
